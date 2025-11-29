@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 from gpiozero import Button, LED
 import ledcontrol
+import tempcontrol
 
 BASE_DIR = Path(__file__).resolve().parent
 LCD_DIR = BASE_DIR.parent.parent / "lcd"   
@@ -28,8 +29,8 @@ key3 = Button(pkey3, pull_up=True, bounce_time=0.1)
 key4 = Button(pkey4, pull_up=True, bounce_time=0.1)
 
 #timer durations, hard coded for now. all in seconds
-short_rinse = 60
-long_rinse = 5*60
+short_rinse = 5
+long_rinse = 5
 dev = 7*60
 stopbath = 60
 fixer = 5*60
@@ -37,16 +38,24 @@ photoflo = 30
 
 
 def timer(stage: str, duration: int):
-    fin = time.time() + duration
+    start = time.monotonic()
+    fin = start + duration
     
     while True:
-        timeremaining = int(fin - time.time())
+        timeremaining = fin - time.monotonic()
         if timeremaining <= 0:
             break
-        mins, sec = divmod(timeremaining, 60)
+        mins, sec = divmod(int(round(timeremaining)), 60)
         display.lcd_display_string(stage, 1)
         display.lcd_display_string(f"{mins:02}:{sec:02} left", 2)
-        time.sleep(1)
+        
+        temp = tempcontrol.actual_temp
+        if temp is not None:
+            display.lcd_display_string(f"Temperature: {temp:4.1f} C", 3)
+        else:
+            display.lcd_display_string("Temperature: unknown", 3)
+            
+        time.sleep(max(0, 1 - (time.monotonic() % 1)))
         
     ledcontrol.leds_off()
     display.lcd_clear()

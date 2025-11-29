@@ -3,7 +3,7 @@
 #This program controls the led sequence for the film dev project
 
 from gpiozero import LED, PWMLED
-from time import sleep, time
+from time import sleep, monotonic, time
 import threading
 
 blue = PWMLED(17)
@@ -47,22 +47,22 @@ def blue_cycle(duration):
     return flow
 
 def yellow_threading(duration):
-    fin = time() + duration
+    start = monotonic()
+    fin = start + duration
     
-    while time() < fin and not stop_flag:
-        for i in range(10):
-            if stop_flag or time() >= fin:
-                break
+    while monotonic() < fin and not stop_flag:
+        elapsed = monotonic() - start
+        cycle_pos = elapsed % 30
+
+        if cycle_pos < 11:
             yellow.on()
             sleep(0.5)
             yellow.off()
             sleep(0.5)
-            
-        cycle_fin = time() + 20
-        while time() < cycle_fin:
-            if stop_flag or time() >= fin:
-                break
-            sleep(0.1)
+        else:
+            yellow.off()
+            sleep(0.1)  
+    
     yellow.off()
     
 def yellow_cycle(duration):
