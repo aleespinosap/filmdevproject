@@ -12,11 +12,17 @@ green = LED(22)
 
 stop_flag = False
 
+def cleanup():
+    yellow.close()
+    green.close()
+    blue.close()
+
 def leds_off():
     global stop_flag
     stop_flag = True
     yellow.off()
     blue.off()
+    green.off()
     
 def rerun_stop_flag():
     global stop_flag
