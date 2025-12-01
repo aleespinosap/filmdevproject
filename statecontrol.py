@@ -29,12 +29,12 @@ key3 = Button(pkey3, pull_up=True, bounce_time=0.1)
 key4 = Button(pkey4, pull_up=True, bounce_time=0.1)
 
 #timer durations, hard coded for now. all in seconds
-short_rinse = 5
-long_rinse = 5
-dev = 5
+short_rinse = 60
+long_rinse = 5*60
+dev = 7.5*60
 stopbath = 60
 fixer = 5*60
-photoflo = 5
+photoflo = 30
 
 def cleanup():
     ledcontrol.leds_off()
@@ -72,20 +72,22 @@ def timer(stage: str, duration: int):
     
   
 def welcome_screen():
-    display.lcd_display_string("Welcome!", 1)
-    display.lcd_display_string("Press 1-4", 2)
+    display.lcd_display_string("********************", 1)
+    display.lcd_display_string("* Press 1 to begin *", 2)
+    display.lcd_display_string("*                  *", 3)
+    display.lcd_display_string("********************", 4)
     
 def process_screen():
-    display.lcd_display_string("Stage x done!", 1)
-    display.lcd_display_string("Press the next key", 2)
+    display.lcd_display_string("     Stage done!    ", 1)
+    display.lcd_display_string("To continue, press: ", 2)
     display.lcd_display_string("1.Dev     3.Fixer", 3)
     display.lcd_display_string("2.Stop    4.Photoflo", 4)
     
 def end_screen():
     display.lcd_display_string("You're all done!", 1)
-    display.lcd_display_string("", 2)
-    display.lcd_display_string("Press 1/2 for main", 3)
-    display.lcd_display_string("Press 3/4 for exit", 4)
+    display.lcd_display_string("Press: ", 2)
+    display.lcd_display_string("1 or 2 to restart", 3)
+    display.lcd_display_string("3 or 4 to exit", 4)
     
     while True:
         if key1.is_pressed or key2.is_pressed:
