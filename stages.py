@@ -8,11 +8,11 @@ class Stages:
     def __init__(self, ui):
         self.ui = ui
 
-        self.short_rinse = 60
-        self.long_rinse  = 5 * 60
-        self.dev         = 7.5 * 60
+        self.short_rinse = 10
+        self.long_rinse  = 60
+        self.dev         = 60
         self.stopbath    = 60
-        self.fixer       = 5 * 60
+        self.fixer       = 45
         self.photoflo    = 30
 
         self.longpress_time = 1.2  
@@ -78,9 +78,9 @@ class Stages:
 
             temp = tempcontrol.actual_temp
             if temp is not None:
-                self.ui.write_line(f"Temperature: {temp:4.1f} C", 2)
+                self.ui.write_line(f"Temp: {temp:4.1f} C", 2)
             else:
-                self.ui.write_line("Temperature: unknown", 2)
+                self.ui.write_line("Temp: unknown", 2)
 
             time.sleep(0.3)
 
@@ -91,41 +91,48 @@ class Stages:
 
     def wash_dev(self):
         ledcontrol.green_done()
-
+        
         ledcontrol.blue_cycle(self.short_rinse)
-        self.timer("First rinse", self.short_rinse, active_button=1)
-
+        self.timer("     First rinse    ", self.short_rinse, active_button=1)
+        self.ui.write_line("     Hold 1 to pause", 4)
+        
         ledcontrol.yellow_cycle(self.dev)
-        self.timer("Developer", self.dev, active_button=1)
+        self.timer("    Developing...  ", self.dev, active_button=1)
 
         ledcontrol.green_cycle() 
 
     def stopdev(self):
         ledcontrol.green_done()
 
+        self.ui.write_line("     Hold 2 to pause", 4)
+        
         ledcontrol.yellow_cycle(self.stopbath)
-        self.timer("Stop bath", self.stopbath, active_button=2)
+        self.timer("     Stop bath    ", self.stopbath, active_button=2)
 
         ledcontrol.green_cycle()
 
     def wash_fix(self):
         ledcontrol.green_done()
 
+        self.ui.write_line("     Hold 3 to pause", 4)
+        
         ledcontrol.blue_cycle(self.short_rinse)
-        self.timer("Second rinse", self.short_rinse, active_button=3)
+        self.timer("    Second rinse    ", self.short_rinse, active_button=3)
 
         ledcontrol.yellow_cycle(self.fixer)
-        self.timer("Fixer", self.fixer, active_button=3)
+        self.timer("     Fixing...    ", self.fixer, active_button=3)
 
         ledcontrol.green_cycle()
 
     def wash_photoflo(self):
         ledcontrol.green_done()
-
+        
+        self.ui.write_line("     Hold 4 to pause", 4)
+        
         ledcontrol.blue_cycle(self.long_rinse)
-        self.timer("Final rinse", self.long_rinse, active_button=4)
+        self.timer("    Final rinse    ", self.long_rinse, active_button=4)
 
-        self.timer("Photoflo", self.photoflo, active_button=4)
+        self.timer("      Photoflo      ", self.photoflo, active_button=4)
 
         ledcontrol.green_cycle()
 

@@ -35,8 +35,8 @@ class UI:
     def welcome_screen(self):
         self.clear()
         self.write_line("********************", 1)
-        self.write_line("* Press 1 to begin *", 2)
-        self.write_line("*                  *", 3)
+        self.write_line("*     Welcome!     *", 2)
+        self.write_line("* Press 1 to begin *", 3)
         self.write_line("********************", 4)
 
     def stage_done_screen(self):
@@ -48,8 +48,10 @@ class UI:
 
     def paused_screen(self):
         self.clear()
-        self.write_line("       PAUSED       ", 2)
-        self.write_line("   Hold to resume   ", 3)
+        self.write_line("********************", 1)
+        self.write_line("*      PAUSED      *", 2)
+        self.write_line("*  Hold to resume  *", 3)
+        self.write_line("********************", 4)
 
     def end_screen(self):
         self.clear()
