@@ -1,13 +1,14 @@
-# main.py
 import time
 from interfacing import UI
 from stages import Stages
 import ledcontrol
-
+import relaycontrol   
 
 def main():
     ui = UI()
     stages = Stages(ui)
+
+    relaycontrol.start()    
 
     NEXT_STAGE = {
         None: 1,  # start -> dev
@@ -67,6 +68,7 @@ def main():
         pass
 
     finally:
+        relaycontrol.stop()      
         ui.cleanup()
         ledcontrol.leds_off()
 
