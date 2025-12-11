@@ -57,16 +57,12 @@ class UI:
         self.clear()
         self.write_line("  You're all done!  ", 1)
         self.write_line("--------------------", 2)
-        self.write_line("    1/2 Restart     ", 3)
-        self.write_line("    3/4 Exit        ", 4)
+        self.write_line(" Press any button   ", 3)
+        self.write_line("   to restart       ", 4)
 
-        while True:
-            if self.key1.is_pressed or self.key2.is_pressed:
-                return "restart"
-            if self.key3.is_pressed or self.key4.is_pressed:
-                return "exit"
-            time.sleep(0.02)
-
+        self.wait_for_button()
+        return "restart"
+    
     def detect_button(self):
         if self.key1.is_pressed:
             return 1

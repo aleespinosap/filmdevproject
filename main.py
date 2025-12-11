@@ -55,15 +55,11 @@ def main():
             elif choice == 4:
                 stages.wash_photoflo()
                 last_stage = 4
-                result = ui.end_screen()
-
-                if result == "restart":
-                    last_stage = None
-                    ui.welcome_screen()
-                    continue
-                else:
-                    break
-
+                ui.end_screen()
+                last_stage = None
+                ui.welcome_screen()
+                continue
+            
     except KeyboardInterrupt:
         pass
 
