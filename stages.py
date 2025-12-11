@@ -9,28 +9,30 @@ class Stages:
     def __init__(self, ui):
         self.ui = ui
 
-        self.short_rinse = 10
-        self.long_rinse  = 60
+        self.short_rinse = 15
+        self.long_rinse  = 30
         self.dev         = 60
-        self.stopbath    = 60
-        self.fixer       = 45
+        self.stopbath    = 30
+        self.fixer       = 30
         self.photoflo    = 30
 
         self.longpress_time = 1.2
 
-        # Push/pull multipliers for development: (label, factor, factor_label)
+        # Push/pull multipliers for development: (level, factor)
+        # Level uses -2..2, where 0 is "normal".
         self.push_pull_options = [
-            ("Pull -1", 0.8, "0.80x"),
-            ("Normal", 1.0, "1.00x"),
-            ("Push +1", 1.2, "1.20x"),
-            ("Push +2", 1.4, "1.40x"),
+            (-2, 0.6),
+            (-1, 0.8),
+            (0, 1.0),
+            (1, 1.2),
+            (2, 1.4),
         ]
         self.dev_run_seconds = self.dev
-        self.dev_choice_label = "Normal"
+        self.dev_choice_level = 0
 
-    def set_dev_settings(self, base_seconds: int, choice_label: str):
+    def set_dev_settings(self, base_seconds: int, choice_level: int):
         self.dev_run_seconds = max(10, int(base_seconds))
-        self.dev_choice_label = choice_label
+        self.dev_choice_level = choice_level
 
     def timer(self, label, duration, active_button):
         self.ui.clear()
@@ -40,7 +42,7 @@ class Stages:
         pause_start = None
         last_displayed_seconds = None
         # Hint shown on the fourth LCD line to remind which button pauses this stage
-        pause_hint = f"Long press {active_button} = pause"
+        pause_hint = f"Hold {active_button} to pause"
 
         while True:
             now = time.monotonic()
@@ -127,15 +129,16 @@ class Stages:
         ledcontrol.green_done()
 
         ledcontrol.blue_cycle(self.short_rinse)
-        self.timer("     First rinse    ", self.short_rinse, active_button=1)
+        self.timer("      Pre-Soak      ", self.short_rinse, active_button=1)
 
         dev_duration = int(round(self.dev_run_seconds))
-        dev_label = "    Developing...  "
-        if self.dev_choice_label != "Normal":
-            dev_label = f" Dev ({self.dev_choice_label}) "
+        dev_label = "Developing..."
+
+        level_display = f"+{self.dev_choice_level}" if self.dev_choice_level > 0 else str(self.dev_choice_level)
+        padded_label = dev_label[: (20 - len(level_display))].ljust(20 - len(level_display)) + level_display.rjust(len(level_display))
 
         ledcontrol.yellow_cycle(dev_duration)
-        self.timer(dev_label[:20].ljust(20), dev_duration, active_button=1)
+        self.timer(padded_label, dev_duration, active_button=1)
 
         ledcontrol.green_cycle()
 
@@ -167,4 +170,3 @@ class Stages:
         self.timer("      Photoflo      ", self.photoflo, active_button=4)
 
         ledcontrol.green_cycle()
-

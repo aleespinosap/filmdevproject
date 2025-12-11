@@ -38,12 +38,12 @@ def main():
                 continue
 
             if choice == 1:
-                dev_seconds, choice_label = ui.development_settings(
+                dev_seconds, choice_level = ui.development_settings(
                     stages.dev_run_seconds,
                     stages.push_pull_options,
-                    stages.dev_choice_label,
+                    stages.dev_choice_level,
                 )
-                stages.set_dev_settings(dev_seconds, choice_label)
+                stages.set_dev_settings(dev_seconds, choice_level)
 
                 stages.wash_dev()
                 last_stage = 1
@@ -78,3 +78,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

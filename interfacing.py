@@ -82,25 +82,28 @@ class UI:
         self.write_line("*  Hold to resume  *", 3)
         self.write_line("********************", 4)
 
-    def development_settings(self, base_seconds: int, push_pull_options, current_label="Normal"):
+    def development_settings(self, base_seconds: int, push_pull_options, current_level=0):
         """Use the rotary encoder to set base dev time, then choose push/pull."""
+
+        def format_level(level: int) -> str:
+            return f"+{level}" if level > 0 else str(level)
 
         def show_time(value):
             self.clear()
-            self.write_line("Set dev time", 1)
-            self.write_line(f"{self._format_time(value)} (mm:ss)", 2)
+            self.write_line("[ Dev time ]", 1)
+            self.write_line(f"   {self._format_time(value)}   ", 2)
             self.write_line("Rotate to adjust", 3)
             self.write_line("Press knob to set", 4)
 
         def show_push_pull(index):
-            label, _, factor_label = push_pull_options[index]
+            level, _ = push_pull_options[index]
             self.clear()
             self.write_line("Push/Pull setting", 1)
-            self.write_line(label, 2)
-            self.write_line(f"Factor: {factor_label}", 3)
+            self.write_line(f"Level: {format_level(level).rjust(3)}", 2)
+            self.write_line("Rotate to adjust", 3)
             self.write_line("Press knob to set", 4)
 
-        # Adjust base development time in 5s steps
+        # Adjust base development time in 5s increments
         value = max(10, int(base_seconds))
         show_time(value)
 
@@ -117,9 +120,9 @@ class UI:
             time.sleep(0.05)
 
         # Choose push/pull level
-        index = 1  # default to the neutral option
-        for i, (label, _, _) in enumerate(push_pull_options):
-            if label == current_label:
+        index = 0 
+        for i, (level, _) in enumerate(push_pull_options):
+            if level == current_level:
                 index = i
                 break
         show_push_pull(index)
@@ -136,17 +139,21 @@ class UI:
 
             time.sleep(0.05)
 
-        label, factor, factor_label = push_pull_options[index]
+        level, factor = push_pull_options[index]
         adjusted = int(round(value * factor))
 
         self.clear()
-        self.write_line("Dev settings saved", 1)
-        self.write_line(f"Base: {self._format_time(value)}", 2)
-        self.write_line(f"Mode: {label}", 3)
-        self.write_line(f"Run: {self._format_time(adjusted)}", 4)
-        time.sleep(1.2)
+        self.write_line("Dev settings ready", 1)
+        self.write_line(f"Time: {self._format_time(adjusted)}", 2)
+        self.write_line(f"Push/Pull: {format_level(level).rjust(3)}", 3)
+        self.write_line("Press knob to start", 4)
 
-        return adjusted, label
+        # Wait for confirmation so the summary stays visible longer.
+        while not self.rotary.is_pressed():
+            time.sleep(0.05)
+        time.sleep(0.15)  # debounce
+
+        return adjusted, level
 
     def end_screen(self):
         self.clear()
