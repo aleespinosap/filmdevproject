@@ -39,24 +39,35 @@ def leds_off():
 
 
 def rerun_stop_flag():
+    """Reset the stop flag to allow LED animation threads to resume."""
 
     global stop_flag
     stop_flag = False
 
 
 def pause_on():
+    """Pause all running LED animations while preserving their state."""
 
     global pause_flag
     pause_flag = True
 
 
 def pause_off():
+    """Resume all paused LED animations."""
 
     global pause_flag
     pause_flag = False
 
 
 def blue_threading(duration):
+    """Worker thread that fades the blue LED smoothly in and out for a specified duration.
+
+    Implements a breathing animation with pause and stop signal support.
+    Used internally by blue_cycle(); do not call directly.
+
+    Args:
+        duration (float): How long to animate in seconds.
+    """
 
     elapsed = 0.0
     step_dt = 0.01
@@ -101,6 +112,17 @@ def blue_threading(duration):
 
 
 def blue_cycle(duration):
+    """Start a smooth breathing animation on the blue LED (active/current stage indicator).
+
+    Creates a daemon thread that fades the LED in and out continuously.
+    Respects pause and stop signals from the main thread.
+
+    Args:
+        duration (float): How long to animate in seconds.
+
+    Returns:
+        threading.Thread: The animation thread (daemon).
+    """
     rerun_stop_flag()
     t = threading.Thread(target=blue_threading, args=(duration,))
     t.daemon = True
@@ -109,6 +131,15 @@ def blue_cycle(duration):
 
 
 def yellow_threading(duration):
+    """Worker thread that blinks the yellow LED for a specified duration.
+
+    Implements a 30-second cycle with 10 seconds of blinking followed by
+    20 seconds off. Respects pause and stop signals. Used internally by
+    yellow_cycle(); do not call directly.
+
+    Args:
+        duration (float): How long to animate in seconds.
+    """
 
     elapsed = 0.0
     last = monotonic()
@@ -148,6 +179,17 @@ def yellow_threading(duration):
 
 
 def yellow_cycle(duration):
+    """Start a blinking pattern on the yellow LED (warning/caution indicator).
+
+    Creates a daemon thread that blinks in 30-second cycles (10s on, 20s off).
+    Respects pause and stop signals from the main thread.
+
+    Args:
+        duration (float): How long to animate in seconds.
+
+    Returns:
+        threading.Thread: The animation thread (daemon).
+    """
     rerun_stop_flag()
     t = threading.Thread(target=yellow_threading, args=(duration,))
     t.daemon = True
@@ -156,6 +198,10 @@ def yellow_cycle(duration):
 
 
 def green_cycle():
+    """Light the green LED steadily to indicate stage is active/ready.
+
+    Stops any blinking animation and sets the LED to solid on.
+    """
 
     global green_blink_flag
     green_blink_flag = False
@@ -163,6 +209,10 @@ def green_cycle():
 
 
 def green_done():
+    """Turn off the green LED to indicate stage completion.
+
+    Stops any blinking animation and powers off the LED.
+    """
 
     global green_blink_flag
     green_blink_flag = False
@@ -170,6 +220,14 @@ def green_done():
 
 
 def green_blink():
+    """Start a steady blinking pattern on the green LED (ready/completion indicator).
+
+    Creates a daemon thread that blinks the LED at 0.4-second intervals.
+    The blink continues until green_blink_stop() is called.
+
+    Returns:
+        threading.Thread: The blinking animation thread (daemon).
+    """
 
     global green_blink_flag
     green_blink_flag = True
@@ -189,6 +247,10 @@ def green_blink():
 
 
 def green_blink_stop():
+    """Stop the green LED blinking and turn it off.
+
+    Halts any active blinking animation and powers off the LED.
+    """
     global green_blink_flag
     green_blink_flag = False
     green.off()

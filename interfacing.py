@@ -9,13 +9,13 @@ from rotarycontrol import RotaryControl
 BASE_DIR = Path(__file__).resolve().parent
 
 def _extend_sys_path_for_lcd(base_dir: Path):
-    """
-    This function was made by AI. I asked it if there was anything it would change from my code
-    and it suggested this function so here it is.
-    Add the most likely lcd driver directory to sys.path.
+    """Add the most likely lcd driver directory to sys.path.
 
     Prefer an adjacent `lcd/` folder but fall back to the historical
     `../../lcd` location for compatibility with older deployments.
+
+    Args:
+        base_dir (Path): Base directory to search from.
     """
 
     lcd_candidates = [
@@ -62,20 +62,43 @@ class UI:
 
     @staticmethod
     def _line(text: str) -> str:
+        """Format text to exactly 20 characters for LCD display.
 
+        Args:
+            text (str): Text to format.
+
+        Returns:
+            str: Text truncated or padded to 20 characters.
+        """
         return text[:20].ljust(20)
 
     def write_line(self, text: str, line: int):
+        """Write text to a specific LCD line (1-4).
+
+        Args:
+            text (str): Text to display (auto-formatted to 20 chars).
+            line (int): LCD line number (1-4).
+        """
         self.display.lcd_display_string(self._line(text), line)
 
     def clear(self):
+        """Clear all text from the LCD display."""
         self.display.lcd_clear()
 
     def _format_time(self, seconds: int) -> str:
+        """Convert seconds to MM:SS format.
+
+        Args:
+            seconds (int): Time in seconds.
+
+        Returns:
+            str: Time formatted as "MM:SS".
+        """
         mins, secs = divmod(max(0, int(seconds)), 60)
         return f"{mins:02}:{secs:02}"
 
     def welcome_screen(self):
+        """Display the welcome screen prompting user to start."""
         self.clear()
         self.write_line("********************", 1)
         self.write_line("*     Welcome!     *", 2)
@@ -83,6 +106,7 @@ class UI:
         self.write_line("********************", 4)
 
     def stage_done_screen(self):
+        """Display stage completion screen with next stage options."""
         self.clear()
         self.write_line("   Stage finished   ", 1)
         self.write_line(" Choose next stage: ", 2)
@@ -90,6 +114,7 @@ class UI:
         self.write_line("2 Stop  4 Photoflo ", 4)
 
     def paused_screen(self):
+        """Display the paused state screen with resume instructions."""
         self.clear()
         self.write_line("********************", 1)
         self.write_line("*      PAUSED      *", 2)
@@ -176,6 +201,11 @@ class UI:
         return adjusted, level
 
     def end_screen(self):
+        """Display completion screen and wait for button press to restart.
+
+        Returns:
+            str: Always returns "restart".
+        """
         self.clear()
         self.write_line("  You're all done!  ", 1)
         self.write_line("--------------------", 2)
@@ -186,12 +216,11 @@ class UI:
         return "restart"
 
     def detect_button(self):
-        
-    """
-    Checks which stage button is currently pressed.
-    Returns the button number (1–4) or None if no button is pressed.
-    """
-        
+        """Check which stage button is currently pressed.
+
+        Returns:
+            int or None: Button number (1-4) or None if no button is pressed.
+        """
         if self.key1.is_pressed:
             return 1
         if self.key2.is_pressed:
@@ -203,6 +232,11 @@ class UI:
         return None
 
     def wait_for_button(self):
+        """Block until any button is pressed, then return its number.
+
+        Returns:
+            int: Button number (1-4) that was pressed.
+        """
         while True:
             b = self.detect_button()
             if b:
@@ -210,6 +244,7 @@ class UI:
             time.sleep(0.02)
 
     def cleanup(self):
+        """Release all GPIO resources and clear the LCD display."""
         self.clear()
         self.key1.close()
         self.key2.close()

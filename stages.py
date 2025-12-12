@@ -37,18 +37,30 @@ class Stages:
         self.dev_choice_level = 0
 
     def set_dev_settings(self, base_seconds: int, choice_level: int):
+        """Set development timer and push/pull level.
+
+        Configures the development stage duration based on the user's choice
+        of exposure compensation (push/pull processing).
+
+        Args:
+            base_seconds (int): Base development time in seconds before push/pull adjustment.
+            choice_level (int): Index into push_pull_options list (-2 to +2 stops).
+        """
         self.dev_run_seconds = max(10, int(base_seconds))
         self.dev_choice_level = choice_level
 
     def timer(self, label, duration, active_button):
-        
+        """Run a countdown timer for a development stage with pause support.
+
+        Updates the LCD display every second showing remaining time and current
+        temperature. Monitors the specified button for long-press (1.2s) to pause
+        and resume. Maintains timer accuracy across pause/resume cycles.
+
+        Args:
+            label (str): Stage name displayed on LCD line 1 (max 20 chars).
+            duration (float): Stage duration in seconds.
+            active_button (int): Button number (1-4) that controls pause for this stage.
         """
-        Runs a countdown timer for a stage.
-        This function updates the LCD once per second, monitors the active
-        button for long-press pause input, and allows the timer to be paused
-        and resumed without losing accuracy.
-        """
-        
         self.ui.clear()
 
         end_time = time.monotonic() + float(duration)
