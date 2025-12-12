@@ -9,7 +9,10 @@ from rotarycontrol import RotaryControl
 BASE_DIR = Path(__file__).resolve().parent
 
 def _extend_sys_path_for_lcd(base_dir: Path):
-    """Add the most likely lcd driver directory to sys.path.
+    """
+    This function was made by AI. I asked it if there was anything it would change from my code
+    and it suggested this function so here it is.
+    Add the most likely lcd driver directory to sys.path.
 
     Prefer an adjacent `lcd/` folder but fall back to the historical
     `../../lcd` location for compatibility with older deployments.
@@ -213,3 +216,4 @@ class UI:
         self.key3.close()
         self.key4.close()
         self.rotary.close()
+
