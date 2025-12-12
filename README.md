@@ -18,6 +18,8 @@ This project is a **B&W Film Development Control System** using a **Raspberry Pi
 
 **Wiring**
 (https://app.cirkitdesigner.com/project/2f3ded7f-9144-401d-bc2a-959bdd5ca67e)
+<img width="3000" height="2275" alt="circuit_image" src="https://github.com/user-attachments/assets/2c27e70d-0dec-4e03-b7a8-573574a9e1b1" />
+
 
 **Safety Warnings**
 The wiring diagram shows an actual immersion heater, not an aquarium heater. **If using an immersion heater,** ***do not touch the water while it is on***. I do not recommend using one for that exact reason. 
