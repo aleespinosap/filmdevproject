@@ -1,4 +1,4 @@
-| # Overview
+# Overview
 
 This project is a **B&W Film Development Control System** using a **Raspberry Pi**. Using a couple hardware components and Python, this system manages timers for the different stages of film development, and maintains a constant temperature for the chemicals used. 
 
