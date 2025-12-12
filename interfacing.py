@@ -36,6 +36,17 @@ import drivers
 
 
 class UI:
+    
+    """
+    Handles all user interaction including:
+    - LCD output (all the different screens shown to the user)
+    - Button input (detect_button looks for which button is being pushed)
+    - Rotary encoder input for setting dev time and push or pull setting
+
+    This class acts as the interface layer between the user and the
+    development logic.
+    """
+    
     def __init__(self):
         self.display = drivers.Lcd()
 
@@ -83,7 +94,13 @@ class UI:
         self.write_line("********************", 4)
 
     def development_settings(self, base_seconds: int, push_pull_options, current_level=0):
-        """Use the rotary encoder to set base dev time, then choose push/pull."""
+        
+        """
+        Allows the user to configure development time and push/pull level
+        using the rotary encoder.
+    
+        Returns the adjusted development time and selected push/pull level.
+        """
 
         def format_level(level: int) -> str:
             return f"+{level}" if level > 0 else str(level)
@@ -103,7 +120,7 @@ class UI:
             self.write_line("Rotate to adjust", 3)
             self.write_line("Press knob to set", 4)
 
-        # Adjust base development time in 5s increments
+        # Adjusts base development time in 5s increments
         value = max(10, int(base_seconds))
         show_time(value)
 
@@ -114,7 +131,7 @@ class UI:
                 show_time(value)
 
             if self.rotary.is_pressed():
-                time.sleep(0.15)  # debounce the confirmation
+                time.sleep(0.15)  # debounces the confirmation
                 break
 
             time.sleep(0.05)
@@ -148,10 +165,10 @@ class UI:
         self.write_line(f"Push/Pull: {format_level(level).rjust(3)}", 3)
         self.write_line("Press knob to start", 4)
 
-        # Wait for confirmation so the summary stays visible longer.
+        # Wait for confirmation so user can see what they chose before starting.
         while not self.rotary.is_pressed():
             time.sleep(0.05)
-        time.sleep(0.15)  # debounce
+        time.sleep(0.15)  # debouncing
 
         return adjusted, level
 
@@ -166,6 +183,12 @@ class UI:
         return "restart"
 
     def detect_button(self):
+        
+    """
+    Checks which stage button is currently pressed.
+    Returns the button number (1–4) or None if no button is pressed.
+    """
+        
         if self.key1.is_pressed:
             return 1
         if self.key2.is_pressed:

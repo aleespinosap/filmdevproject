@@ -1,6 +1,5 @@
 #tempcontrol.py
 #Author: Scott Campbell (https://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/) with small tweaks by Alejandra Espinosa
-#This program uses the ds18b20 sensor to read temperature
 
 import os
 import glob
@@ -10,9 +9,9 @@ import threading
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
 
-base_dir = '/sys/bus/w1/devices/'
+base_dir = '/sys/bus/w1/devices/' #the temp sensor is here
 
-devices = glob.glob(base_dir + '28*')
+devices = glob.glob(base_dir + '28*')  #looks for the sensor's directory, it should start with a 28
 device_file = devices[0] + '/w1_slave'
 
 actual_temp = None
@@ -22,11 +21,11 @@ _worker = None
 
 
 def read_temp_raw():
-    with open(device_file, 'r') as f:
+    with open(device_file, 'r') as f: #reads the temperature directly from the file
         return f.readlines()
 
 
-def temp_celsius():
+def temp_celsius():  #after reading the file, this function converts that info into celsius and makes that its return value
     lines = read_temp_raw()
 
     while lines[0].strip()[-3:] != 'YES':
@@ -54,12 +53,17 @@ def _periodic_temp():
         if temp is not None:
             actual_temp = temp
 
-        # Check frequently so cleanup can interrupt quickly.
         _stop_event.wait(1)
 
 
 def start():
-    """Start the background temperature reader once."""
+    
+    """Start the background temperature monitoring thread in the backrground
+    The thread continuously reads data from the DS18B20 sensor and updates
+    the global actual_temp variable so other modules can access the
+    current temperature in real time.
+    """
+    
     global _worker
     if _worker and _worker.is_alive():
         return _worker
@@ -71,11 +75,10 @@ def start():
 
 
 def cleanup():
-    """Stop background temperature polling for a clean shutdown."""
+    """Stop background temperature thread to help cleanup."""
     _stop_event.set()
     if _worker and _worker.is_alive():
         _worker.join(timeout=1.5)
 
 
-# Preserve existing behavior of starting temperature polling on import.
 start()

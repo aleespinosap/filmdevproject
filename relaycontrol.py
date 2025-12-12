@@ -10,7 +10,7 @@ import threading
 import time
 import tempcontrol
 
-HEAT_ON_C  = 20.0   # 68°F
+HEAT_ON_C  = 20.0   # 68°F. I personally prefer celsius but here's the °F value for whoever uses that system
 HEAT_OFF_C = 21.0   # 70°F
 
 
@@ -19,6 +19,13 @@ stop_event = threading.Event()
 _worker = None
 
 def update_heater():
+
+    """
+    Updates the heater relay state based on the current temperature.
+    Heater turns ON below HEAT_ON_C
+    Heater turns OFF above HEAT_OFF_C
+    """
+
     temp = tempcontrol.actual_temp
 
     if temp is None:
@@ -37,7 +44,13 @@ def _relay_loop():
         time.sleep(1)
 
 def start():
-    """Start heater thread once at program startup."""
+    
+    """
+    Starts the heater control thread.
+    The thread runs continuously in the background and updates the relay
+    state once per second based on the latest temperature reading.
+    """
+    
     global _worker
 
     if _worker and _worker.is_alive():
@@ -50,7 +63,9 @@ def start():
 
 
 def stop():
+    
     """Turn heater off on program exit."""
+    
     stop_event.set()
     if _worker and _worker.is_alive():
         _worker.join(timeout=1.5)

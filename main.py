@@ -1,3 +1,5 @@
+#main.py
+
 import time
 from interfacing import UI
 from stages import Stages
@@ -5,12 +7,19 @@ import ledcontrol
 import relaycontrol
 
 def main():
+    """
+    This function intializes the user interface (UI) and the stage control (Stages)
+    It starts the threading for the relay control, and forces the stage order so that
+    the user cannot repeat or enter the wrong stage at any point. The stages are
+    continuous so the program can't be exited until all 4 have been completed, unless Ctrl+C
+    is pressed.
+    """
     ui = UI()
     stages = Stages(ui)
 
     relaycontrol.start()
 
-    NEXT_STAGE = {
+    NEXT_STAGE = {#Dictionary that enforces strict stage order
         None: 1,  # start -> dev
         1: 2,     # dev -> stop
         2: 3,     # stop -> fixer
