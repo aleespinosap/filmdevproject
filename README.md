@@ -1,4 +1,4 @@
-# Overview
+| # Overview
 
 This project is a **B&W Film Development Control System** using a **Raspberry Pi**. Using a couple hardware components and Python, this system manages timers for the different stages of film development, and maintains a constant temperature for the chemicals used. 
 
@@ -16,19 +16,19 @@ This project is a **B&W Film Development Control System** using a **Raspberry Pi
  - 3 x LEDs (1 blue, 1 green, 1 yellow)
  - 3 x 220 $\Omega$ Resistors
 
-**Wiring**
+## Wiring
 (https://app.cirkitdesigner.com/project/2f3ded7f-9144-401d-bc2a-959bdd5ca67e)
 <img width="3000" height="2275" alt="circuit_image" src="https://github.com/user-attachments/assets/2c27e70d-0dec-4e03-b7a8-573574a9e1b1" />
 
 
-**Safety Warnings**
+## Safety Warnings
 The wiring diagram shows an actual immersion heater, not an aquarium heater. **If using an immersion heater,** ***do not touch the water while it is on***. I do not recommend using one for that exact reason. 
 
 If you're following my design and you're using an **aquarium heater**, ensure it is ***fully submerged in water and not touching the walls of your container***. If it touches the walls it might create a hotspot and crack the glass or break it. 
 
 When wiring the heater to the relay, ensure no wiring remains exposed after soldering. 
 
-**Physical Setup**
+## Physical Setup
 Get a container large enough to hold all your chemistry. A 5 gallon aquarium or big, deep Pyrex should be good enough. Pop your aquarium heater on any of its inner walls, and fill it up until it fully covers it. Place the temperature probe in the water. Everything else should be placed in your line of view so you can always see the screen and LEDs, as well as handle the buttons at any time.
 Place your chemistry bottles inside the water bath so they can be warmed up.
 
