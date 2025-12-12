@@ -1,4 +1,5 @@
 # stages.py
+
 import math
 import time
 import ledcontrol
@@ -6,27 +7,56 @@ import tempcontrol
 
 
 class Stages:
+    
+    """
+    This class contains all the logic pertaining the timers used across every stage
+    as well as the stage-dependent LED behavior. Pausing is handled in here, and the
+    temperature display is too
+    """
+    
     def __init__(self, ui):
         self.ui = ui
 
-        self.short_rinse = 10
-        self.long_rinse  = 60
+        self.short_rinse = 60    #The timer durations are hard coded because they don't change in B&W dev. Only Dev timer can change which is handled elsewhere
+        self.long_rinse  = 5*60
         self.dev         = 60
         self.stopbath    = 60
-        self.fixer       = 45
+        self.fixer       = 5.5*60
         self.photoflo    = 30
 
-        self.longpress_time = 1.2
+        self.longpress_time = 1.2 #Long press corresponds to button handling for pausing
+
+        self.push_pull_options = [ #These are (stops of light, factor)
+            (-2, 0.6),			   #A stop of light is by how much should the film be pushed or pulled, the factor is by how much the timer has to be adjusted
+            (-1, 0.8),
+            (0, 1.0),
+            (1, 1.2),
+            (2, 1.4),
+        ]
+        self.dev_run_seconds = self.dev
+        self.dev_choice_level = 0
+
+    def set_dev_settings(self, base_seconds: int, choice_level: int):
+        self.dev_run_seconds = max(10, int(base_seconds))
+        self.dev_choice_level = choice_level
 
     def timer(self, label, duration, active_button):
+        
+        """
+        Runs a countdown timer for a stage.
+        This function updates the LCD once per second, monitors the active
+        button for long-press pause input, and allows the timer to be paused
+        and resumed without losing accuracy.
+        """
+        
         self.ui.clear()
 
         end_time = time.monotonic() + float(duration)
         press_start = None
         pause_start = None
         last_displayed_seconds = None
-        # Hint shown on the fourth LCD line to remind which button pauses this stage
-        pause_hint = f"Long press {active_button} = pause"
+       
+        pause_hint = f"Hold {active_button} to pause"    # Hint shown on the fourth LCD line to remind which button pauses this stage
 
         while True:
             now = time.monotonic()
@@ -110,17 +140,38 @@ class Stages:
 
 
     def wash_dev(self):
+            
+        """
+        Handles the full Stage 1 process: pre-soak followed by development.
+        The pre-soak uses a blue PWM LED, while development uses a yellow
+        flashing LED pattern. A solid green LED indicates completion of
+        development.
+        """
+        
         ledcontrol.green_done()
 
         ledcontrol.blue_cycle(self.short_rinse)
-        self.timer("     First rinse    ", self.short_rinse, active_button=1)
+        self.timer("      Pre-Soak      ", self.short_rinse, active_button=1)
 
-        ledcontrol.yellow_cycle(self.dev)
-        self.timer("    Developing...  ", self.dev, active_button=1)
+        dev_duration = int(round(self.dev_run_seconds))
+        dev_label = "Developing..."
+
+        level_display = f"+{self.dev_choice_level}" if self.dev_choice_level > 0 else str(self.dev_choice_level)
+        padded_label = dev_label[: (20 - len(level_display))].ljust(20 - len(level_display)) + level_display.rjust(len(level_display))
+
+        ledcontrol.yellow_cycle(dev_duration)
+        self.timer(padded_label, dev_duration, active_button=1)
 
         ledcontrol.green_cycle()
 
     def stopdev(self):
+        
+        """
+        Handles the stop bath stage.
+        Runs a fixed-length timer with yellow LED activity and allows pause
+        via long button press. A solid green LED indicates completion.
+        """
+        
         ledcontrol.green_done()
 
         ledcontrol.yellow_cycle(self.stopbath)
@@ -129,6 +180,13 @@ class Stages:
         ledcontrol.green_cycle()
 
     def wash_fix(self):
+        
+        """
+        Handles the rinse followed by fixer stage.
+        The rinse uses a blue PWM LED, while the fixer uses yellow LED activity.
+        A solid green LED indicates completion of the fixer stage.
+        """
+        
         ledcontrol.green_done()
 
         ledcontrol.blue_cycle(self.short_rinse)
@@ -140,6 +198,13 @@ class Stages:
         ledcontrol.green_cycle()
 
     def wash_photoflo(self):
+        
+        """
+        Handles the final rinse and photoflo stage.
+        Blue PWM LED is used during the final rinse. Photoflo does not use
+        yellow LED activity. A solid green LED indicates final completion.
+        """
+        
         ledcontrol.green_done()
 
         ledcontrol.blue_cycle(self.long_rinse)
@@ -148,4 +213,3 @@ class Stages:
         self.timer("      Photoflo      ", self.photoflo, active_button=4)
 
         ledcontrol.green_cycle()
-

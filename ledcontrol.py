@@ -9,16 +9,25 @@ green = LED(22)
 
 stop_flag = False
 green_blink_flag = False
-pause_flag = False  
+pause_flag = False
 
 
 def cleanup():
+    """Ensure all LED resources are released and threads stop.
+
+    The GPIOZero objects are closed after explicitly stopping any
+    background animation loops so that pins are reset even if the
+    program exits due to a KeyboardInterrupt.
+    """
+
+    leds_off()
     yellow.close()
     green.close()
     blue.close()
 
 
 def leds_off():
+    """Stop any running LED threads and power everything down."""
 
     global stop_flag, green_blink_flag, pause_flag
     stop_flag = True
@@ -30,7 +39,7 @@ def leds_off():
 
 
 def rerun_stop_flag():
- 
+
     global stop_flag
     stop_flag = False
 
@@ -42,7 +51,7 @@ def pause_on():
 
 
 def pause_off():
- 
+
     global pause_flag
     pause_flag = False
 
@@ -50,15 +59,15 @@ def pause_off():
 def blue_threading(duration):
 
     elapsed = 0.0
-    step_dt = 0.01 
+    step_dt = 0.01
 
     while elapsed < duration and not stop_flag:
-       
+
         for i in range(0, 101):
             if stop_flag or elapsed >= duration:
                 break
 
-         
+
             while pause_flag and not stop_flag:
                 blue.off()
                 sleep(0.05)
@@ -71,7 +80,7 @@ def blue_threading(duration):
             if elapsed >= duration:
                 break
 
-     
+
         for i in range(100, -1, -1):
             if stop_flag or elapsed >= duration:
                 break
@@ -100,7 +109,7 @@ def blue_cycle(duration):
 
 
 def yellow_threading(duration):
- 
+
     elapsed = 0.0
     last = monotonic()
 
@@ -122,7 +131,7 @@ def yellow_threading(duration):
         if elapsed >= duration:
             break
 
-        cycle_pos = elapsed % 30.0 
+        cycle_pos = elapsed % 30.0
 
         if cycle_pos < 10.0:
             yellow.on()
